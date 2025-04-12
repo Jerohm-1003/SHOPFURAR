@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  TextInput,
+  Modal,
+  ScrollView,
 } from "react-native";
 import type { Screen } from "../types";
 
@@ -81,66 +84,66 @@ const BRScreen: React.FC<ShopfurScreenProps> = ({
   const [selectedItem, setSelectedItem] = React.useState<Item | null>(null);
   const [showFilters, setShowFilters] = React.useState(false);
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc" | null>(null);
+  const [showModal, setShowModal] = React.useState(false);
+  const [isRegistering, setIsRegistering] = React.useState(false);
+
+  // Login form
+  const [loginEmail, setLoginEmail] = React.useState("");
+  const [loginPassword, setLoginPassword] = React.useState("");
+
+  // Register form
+  const [regUsername, setRegUsername] = React.useState("");
+  const [regEmail, setRegEmail] = React.useState("");
+  const [regPassword, setRegPassword] = React.useState("");
+  const [regConfirmPassword, setRegConfirmPassword] = React.useState("");
+
+  const validatePassword = (pass: string) => ({
+    length: pass.length >= 8,
+    uppercase: /[A-Z]/.test(pass),
+    lowercase: /[a-z]/.test(pass),
+    number: /\d/.test(pass),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(pass),
+  });
+
+  const getPasswordRuleText = (key: string) => {
+    switch (key) {
+      case "length":
+        return "8+ characters";
+      case "uppercase":
+        return "Uppercase letter";
+      case "lowercase":
+        return "Lowercase letter";
+      case "number":
+        return "Number";
+      case "special":
+        return "Special character";
+      default:
+        return "";
+    }
+  };
+
+  const passwordChecks = validatePassword(regPassword);
+  const hasStartedTyping: boolean = regPassword.length > 0;
+  const incompleteRules: [string, boolean][] = Object.entries(
+    passwordChecks
+  ).filter(([_, ok]) => !ok);
+
+  React.useEffect(() => {
+    if (!isRegistering) {
+      setRegUsername("");
+      setRegEmail("");
+      setRegPassword("");
+      setRegConfirmPassword("");
+    } else {
+      setLoginEmail("");
+      setLoginPassword("");
+    }
+  }, [isRegistering]);
 
   const toggleFilters = () => setShowFilters(!showFilters);
-
   let items = [...mockItems[category]];
   if (sortOrder === "asc") items.sort((a, b) => a.price - b.price);
   else if (sortOrder === "desc") items.sort((a, b) => b.price - a.price);
-
-  if (selectedItem) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerIcon}>☰</Text>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require("../assets/cart_icon.png")}
-              style={styles.logo}
-            />
-            <Text style={styles.logoText}>SHOPFUR</Text>
-          </View>
-          <Text style={styles.headerIcon}>⚙️</Text>
-        </View>
-
-        <View style={styles.detailsContainer}>
-          <Text style={styles.sectionTitle}>
-            Living Room | {categoryTitles[category]}
-          </Text>
-
-          <View style={styles.itemDetailCard}>
-            <Image
-              source={require("../assets/cart_icon.png")}
-              style={{ width: 50, height: 50 }}
-            />
-            <Text style={styles.itemName}>{selectedItem.name}</Text>
-            <Text style={styles.itemPrice}>₱ {selectedItem.price}</Text>
-
-            <View style={styles.detailButtons}>
-              <TouchableOpacity
-                style={styles.cartButton}
-                onPress={() => {
-                  addToCart(selectedItem);
-                  setSelectedItem(null);
-                }}
-              >
-                <Text style={styles.cartButtonText}>Add to Cart</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.arButton}
-                onPress={() => goToScreen("ar", { uri: selectedItem.glbUri })}
-              >
-                <Text style={styles.arButtonText}>AR VIEW</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        <BottomNav onNavigate={goToScreen} />
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -156,64 +159,196 @@ const BRScreen: React.FC<ShopfurScreenProps> = ({
         <Text style={styles.headerIcon}>⚙️</Text>
       </View>
 
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>
-          Living Room | {categoryTitles[category]}
-        </Text>
-
-        <View style={styles.filterRow}>
-          <TouchableOpacity style={styles.filterButton} onPress={toggleFilters}>
-            <Text style={styles.filterButtonText}>☰ Filters</Text>
-          </TouchableOpacity>
-          <Text style={styles.clearText} onPress={() => setSortOrder(null)}>
-            Clear Filters
+      {selectedItem ? (
+        <View style={styles.detailsContainer}>
+          <Text style={styles.sectionTitle}>
+            Living Room | {categoryTitles[category]}
           </Text>
-        </View>
+          <View style={styles.itemDetailCard}>
+            <Image
+              source={require("../assets/cart_icon.png")}
+              style={{ width: 50, height: 50 }}
+            />
+            <Text style={styles.itemName}>{selectedItem.name}</Text>
+            <Text style={styles.itemPrice}>₱ {selectedItem.price}</Text>
 
-        {showFilters && (
-          <View style={styles.filterPanel}>
-            <Text style={styles.filterCategory}>Sort by Price:</Text>
-            <View style={styles.filterOptionRow}>
+            <View style={styles.detailButtons}>
               <TouchableOpacity
-                style={styles.filterOption}
-                onPress={() => setSortOrder("asc")}
+                style={styles.cartButton}
+                onPress={() => setShowModal(true)}
               >
-                <Text style={styles.filterOptionText}>Low to High</Text>
+                <Text style={styles.cartButtonText}>Add to Cart</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.filterOption}
-                onPress={() => setSortOrder("desc")}
+                style={styles.arButton}
+                onPress={() => goToScreen("ar", { uri: selectedItem.glbUri })}
               >
-                <Text style={styles.filterOptionText}>High to Low</Text>
+                <Text style={styles.arButtonText}>AR VIEW</Text>
               </TouchableOpacity>
             </View>
           </View>
-        )}
-      </View>
+        </View>
+      ) : (
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            Living Room | {categoryTitles[category]}
+          </Text>
 
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.grid}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.itemBox}
-            onPress={() => setSelectedItem(item)}
-          >
-            <View style={styles.itemImagePlaceholder} />
-            <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemPrice}>₱ {item.price}</Text>
-          </TouchableOpacity>
-        )}
-      />
+          <View style={styles.filterRow}>
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={toggleFilters}
+            >
+              <Text style={styles.filterButtonText}>☰ Filters</Text>
+            </TouchableOpacity>
+            <Text style={styles.clearText} onPress={() => setSortOrder(null)}>
+              Clear Filters
+            </Text>
+          </View>
+
+          {showFilters && (
+            <View style={styles.filterPanel}>
+              <Text style={styles.filterCategory}>Sort by Price:</Text>
+              <View style={styles.filterOptionRow}>
+                <TouchableOpacity
+                  style={styles.filterOption}
+                  onPress={() => setSortOrder("asc")}
+                >
+                  <Text style={styles.filterOptionText}>Low to High</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.filterOption}
+                  onPress={() => setSortOrder("desc")}
+                >
+                  <Text style={styles.filterOptionText}>High to Low</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
+
+      {!selectedItem && (
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          contentContainerStyle={styles.grid}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.itemBox}
+              onPress={() => setSelectedItem(item)}
+            >
+              <View style={styles.itemImagePlaceholder} />
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemPrice}>₱ {item.price}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
 
       <BottomNav onNavigate={goToScreen} />
+
+      <Modal animationType="slide" transparent={true} visible={showModal}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ScrollView>
+              <Text style={styles.modalTitle}>
+                {isRegistering ? "Register" : "Login"}
+              </Text>
+
+              {isRegistering ? (
+                <>
+                  <TextInput
+                    placeholder="Username"
+                    placeholderTextColor="#aaa"
+                    style={styles.input}
+                    value={regUsername}
+                    onChangeText={setRegUsername}
+                  />
+                  <TextInput
+                    placeholder="Email"
+                    placeholderTextColor="#aaa"
+                    style={styles.input}
+                    value={regEmail}
+                    onChangeText={setRegEmail}
+                  />
+                  <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#aaa"
+                    style={styles.input}
+                    secureTextEntry
+                    value={regPassword}
+                    onChangeText={setRegPassword}
+                  />
+                  <TextInput
+                    placeholder="Confirm Password"
+                    placeholderTextColor="#aaa"
+                    style={styles.input}
+                    secureTextEntry
+                    value={regConfirmPassword}
+                    onChangeText={setRegConfirmPassword}
+                  />
+
+                  {hasStartedTyping && incompleteRules.length > 0 && (
+                    <View style={styles.passHintBox}>
+                      {incompleteRules.map(([key]) => (
+                        <Text key={key} style={styles.passHintText}>
+                          • {getPasswordRuleText(key)}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
+
+                  <TouchableOpacity style={styles.modalButton}>
+                    <Text style={styles.modalButtonText}>Register</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TextInput
+                    placeholder="Email or Username"
+                    placeholderTextColor="#aaa"
+                    style={styles.input}
+                    value={loginEmail}
+                    onChangeText={setLoginEmail}
+                  />
+                  <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#aaa"
+                    style={styles.input}
+                    secureTextEntry
+                    value={loginPassword}
+                    onChangeText={setLoginPassword}
+                  />
+                  <TouchableOpacity>
+                    <Text style={styles.forgotText}>Forgot password?</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalButton}>
+                    <Text style={styles.modalButtonText}>Login</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+
+              <TouchableOpacity
+                onPress={() => setIsRegistering(!isRegistering)}
+              >
+                <Text style={styles.registerToggleText}>
+                  {isRegistering
+                    ? "Already have an account? Login"
+                    : "Don't have an account? Register"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowModal(false)}>
+                <Text style={styles.forgotText}>Close</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
-
-export default BRScreen;
 
 const BottomNav = ({
   onNavigate,
@@ -244,6 +379,50 @@ const BottomNav = ({
 };
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    padding: 20,
+  },
+  modalContent: { backgroundColor: "#fff", padding: 20, borderRadius: 16 },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  modalButton: {
+    backgroundColor: "#BFA890",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  modalButtonText: { color: "#fff", fontWeight: "bold" },
+  registerToggleText: {
+    color: "#6B4F3B",
+    marginTop: 10,
+    textAlign: "center",
+    textDecorationLine: "underline",
+  },
+  forgotText: { color: "#6B4F3B", marginTop: 10, textAlign: "center" },
+
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "#3E2E22",
+    paddingVertical: 10,
+  },
+  navItem: { alignItems: "center" },
+  navIcon: { color: "white", fontSize: 22 },
+  navLabel: { color: "white", fontSize: 12, marginTop: 2 },
   container: { flex: 1, backgroundColor: "#D8C5B4" },
   header: {
     backgroundColor: "#3E2E22",
@@ -360,13 +539,16 @@ const styles = StyleSheet.create({
     color: "#3E2E22",
     fontWeight: "600",
   },
-  bottomNav: {
-    backgroundColor: "#3E2E22",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 10,
+  passHintBox: {
+    marginBottom: 10,
+    marginTop: -5,
+    paddingLeft: 5,
   },
-  navItem: { alignItems: "center" },
-  navIcon: { color: "white", fontSize: 22 },
-  navLabel: { color: "white", fontSize: 12, marginTop: 2 },
+  passHintText: {
+    fontSize: 12,
+    color: "red",
+    marginBottom: 2,
+  },
 });
+
+export default BRScreen;
