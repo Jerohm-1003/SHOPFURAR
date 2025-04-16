@@ -5,7 +5,7 @@ import {
   ViroAmbientLight,
 } from "@reactvision/react-viro";
 import React, { Component } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
 interface ARSceneProps {
   uri: string;
@@ -65,17 +65,39 @@ class HelloWorldSceneAR extends Component<{ uri: string }> {
   }
 }
 
-export default function ARScene({ uri }: ARSceneProps) {
+export default function ARScene({ uri, goBack }: ARSceneProps) {
   return (
-    <ViroARSceneNavigator
-      autofocus
-      initialScene={{ scene: () => <HelloWorldSceneAR uri={uri} /> }}
-      viroAppProps={{ uri }}
-      style={styles.f1}
-    />
+    <View style={styles.container}>
+      <ViroARSceneNavigator
+        autofocus
+        initialScene={{ scene: () => <HelloWorldSceneAR uri={uri} /> }}
+        viroAppProps={{ uri }}
+        style={styles.f1}
+      />
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={goBack}>
+        <Text style={styles.backButtonText}>Back</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   f1: { flex: 1 },
+  container: {
+    flex: 1,
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    backgroundColor: "#00000080",
+    padding: 10,
+    borderRadius: 5,
+  },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
 });

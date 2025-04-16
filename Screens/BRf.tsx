@@ -356,10 +356,10 @@ const BottomNav = ({
   onNavigate: (screen: Screen, params?: any) => void;
 }) => {
   const navItems: { icon: string; label: string; target: Screen }[] = [
-    { icon: "👤", label: "Profile", target: "cart" },
     { icon: "🏠", label: "Home", target: "home" },
-    { icon: "🛒", label: "Cart", target: "cart" },
     { icon: "📥", label: "Inbox", target: "cart" },
+    { icon: "🛒", label: "Cart", target: "cart" },
+    { icon: "👤", label: "Profile", target: "cart" },
   ];
 
   return (

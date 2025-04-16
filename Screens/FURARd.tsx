@@ -37,7 +37,8 @@ const mockItems: Record<string, Item[]> = {
       id: 2,
       name: "Office Chair",
       price: 1800,
-      glbUri: "https://modelviewer.dev/shared-assets/models/Chair.glb",
+      glbUri:
+        "https://github.com/Jerohm-1003/glb-models/raw/refs/heads/main/untitled.glb",
     },
   ],
   sofa: [
@@ -357,10 +358,10 @@ const BottomNav = ({
   onNavigate: (screen: Screen, params?: any) => void;
 }) => {
   const navItems: { icon: string; label: string; target: Screen }[] = [
-    { icon: "👤", label: "Profile", target: "cart" },
     { icon: "🏠", label: "Home", target: "home" },
-    { icon: "🛒", label: "Cart", target: "cart" },
     { icon: "📥", label: "Inbox", target: "cart" },
+    { icon: "🛒", label: "Cart", target: "cart" },
+    { icon: "👤", label: "Profile", target: "cart" },
   ];
 
   return (

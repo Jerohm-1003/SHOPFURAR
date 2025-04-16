@@ -54,17 +54,17 @@ const BRoomScreen: React.FC<BRoomScreenProps> = ({ goToScreen, goBack }) => {
       </View>
 
       <View style={styles.bottomNav}>
-        {["profile", "home", "cart", "inbox"].map((target, index) => (
+        {["home", "inbox", "cart", "profile"].map((target, index) => (
           <TouchableOpacity
             key={index}
             style={styles.navItem}
             onPress={() => goToScreen(target as Screen)}
           >
             <Text style={styles.navIcon}>
-              {["👤", "🏠", "🛒", "📥"][index]}
+              {["🏠", "📥", "🛒", "👤"][index]}
             </Text>
             <Text style={styles.navLabel}>
-              {["Profile", "Home", "Cart", "Inbox"][index]}
+              {["Home", "Inbox", "Cart", "Profile"][index]}
             </Text>
           </TouchableOpacity>
         ))}
