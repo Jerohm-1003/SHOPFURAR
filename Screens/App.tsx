@@ -12,6 +12,7 @@ import DRoomtScreen from "./Drt";
 import ARScene from "./ARScene";
 import DRScreen from "./Dr";
 import BRScreen from "./BRf";
+import LRegScreen from "./lreg";
 
 export type Screen =
   | "loading"
@@ -35,7 +36,8 @@ export type Screen =
   | "Cabinet"
   | "DiningChair"
   | "broomt"
-  | "droomt";
+  | "droomt"
+  | "lreg";
 
 export interface CartItem {
   id: number;
@@ -97,6 +99,8 @@ const App = () => {
         goToScreen={goToScreen}
       />
     );
+
+  if (screen === "lreg") return <LRegScreen goToScreen={goToScreen} />;
 
   if (["chair", "sofa", "tvstand"].includes(screen))
     return (

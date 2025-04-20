@@ -19,4 +19,6 @@ export type Screen =
   | "DiningChair"
   | "broomt"
   | "droomt"
+  | "lreg"
+  
 

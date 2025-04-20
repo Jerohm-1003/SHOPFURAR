@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,7 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
-  TextInput,
   Modal,
-  ScrollView,
 } from "react-native";
 import type { Screen } from "../types";
 
@@ -47,7 +45,7 @@ const mockItems: Record<string, Item[]> = {
       name: "Leather Sofa",
       price: 7500,
       glbUri:
-        "https://raw.githubusercontent.com/Jerohm-1003/glb-models/main/furniture.glb",
+        "https://github.com/Jerohm-1003/glb-models/raw/refs/heads/main/sofa.glb",
     },
     {
       id: 4,
@@ -86,66 +84,16 @@ const ShopfurScreen: React.FC<ShopfurScreenProps> = ({
   const [selectedItem, setSelectedItem] = React.useState<Item | null>(null);
   const [showFilters, setShowFilters] = React.useState(false);
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc" | null>(null);
-  const [showModal, setShowModal] = React.useState(false);
-  const [isRegistering, setIsRegistering] = React.useState(false);
-
-  // Login form
-  const [loginEmail, setLoginEmail] = React.useState("");
-  const [loginPassword, setLoginPassword] = React.useState("");
-
-  // Register form
-  const [regUsername, setRegUsername] = React.useState("");
-  const [regEmail, setRegEmail] = React.useState("");
-  const [regPassword, setRegPassword] = React.useState("");
-  const [regConfirmPassword, setRegConfirmPassword] = React.useState("");
-
-  const validatePassword = (pass: string) => ({
-    length: pass.length >= 8,
-    uppercase: /[A-Z]/.test(pass),
-    lowercase: /[a-z]/.test(pass),
-    number: /\d/.test(pass),
-    special: /[!@#$%^&*(),.?":{}|<>]/.test(pass),
-  });
-
-  const getPasswordRuleText = (key: string) => {
-    switch (key) {
-      case "length":
-        return "8+ characters";
-      case "uppercase":
-        return "Uppercase letter";
-      case "lowercase":
-        return "Lowercase letter";
-      case "number":
-        return "Number";
-      case "special":
-        return "Special character";
-      default:
-        return "";
-    }
-  };
-
-  const passwordChecks = validatePassword(regPassword);
-  const hasStartedTyping: boolean = regPassword.length > 0;
-  const incompleteRules: [string, boolean][] = Object.entries(
-    passwordChecks
-  ).filter(([_, ok]) => !ok);
-
-  React.useEffect(() => {
-    if (!isRegistering) {
-      setRegUsername("");
-      setRegEmail("");
-      setRegPassword("");
-      setRegConfirmPassword("");
-    } else {
-      setLoginEmail("");
-      setLoginPassword("");
-    }
-  }, [isRegistering]);
+  const [showModal, setShowModal] = useState(false);
 
   const toggleFilters = () => setShowFilters(!showFilters);
   let items = [...mockItems[category]];
   if (sortOrder === "asc") items.sort((a, b) => a.price - b.price);
   else if (sortOrder === "desc") items.sort((a, b) => b.price - a.price);
+
+  const handleAddToCart = () => {
+    setShowModal(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -177,7 +125,7 @@ const ShopfurScreen: React.FC<ShopfurScreenProps> = ({
             <View style={styles.detailButtons}>
               <TouchableOpacity
                 style={styles.cartButton}
-                onPress={() => setShowModal(true)}
+                onPress={handleAddToCart}
               >
                 <Text style={styles.cartButtonText}>Add to Cart</Text>
               </TouchableOpacity>
@@ -251,100 +199,32 @@ const ShopfurScreen: React.FC<ShopfurScreenProps> = ({
 
       <BottomNav onNavigate={goToScreen} />
 
-      <Modal animationType="slide" transparent={true} visible={showModal}>
-        <View style={styles.modalContainer}>
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <ScrollView>
-              <Text style={styles.modalTitle}>
-                {isRegistering ? "Register" : "Login"}
-              </Text>
-
-              {isRegistering ? (
-                <>
-                  <TextInput
-                    placeholder="Username"
-                    placeholderTextColor="#aaa"
-                    style={styles.input}
-                    value={regUsername}
-                    onChangeText={setRegUsername}
-                  />
-                  <TextInput
-                    placeholder="Email"
-                    placeholderTextColor="#aaa"
-                    style={styles.input}
-                    value={regEmail}
-                    onChangeText={setRegEmail}
-                  />
-                  <TextInput
-                    placeholder="Password"
-                    placeholderTextColor="#aaa"
-                    style={styles.input}
-                    secureTextEntry
-                    value={regPassword}
-                    onChangeText={setRegPassword}
-                  />
-                  <TextInput
-                    placeholder="Confirm Password"
-                    placeholderTextColor="#aaa"
-                    style={styles.input}
-                    secureTextEntry
-                    value={regConfirmPassword}
-                    onChangeText={setRegConfirmPassword}
-                  />
-
-                  {hasStartedTyping && incompleteRules.length > 0 && (
-                    <View style={styles.passHintBox}>
-                      {incompleteRules.map(([key]) => (
-                        <Text key={key} style={styles.passHintText}>
-                          • {getPasswordRuleText(key)}
-                        </Text>
-                      ))}
-                    </View>
-                  )}
-
-                  <TouchableOpacity style={styles.modalButton}>
-                    <Text style={styles.modalButtonText}>Register</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <TextInput
-                    placeholder="Email or Username"
-                    placeholderTextColor="#aaa"
-                    style={styles.input}
-                    value={loginEmail}
-                    onChangeText={setLoginEmail}
-                  />
-                  <TextInput
-                    placeholder="Password"
-                    placeholderTextColor="#aaa"
-                    style={styles.input}
-                    secureTextEntry
-                    value={loginPassword}
-                    onChangeText={setLoginPassword}
-                  />
-                  <TouchableOpacity>
-                    <Text style={styles.forgotText}>Forgot password?</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.modalButton}>
-                    <Text style={styles.modalButtonText}>Login</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-
+            <Text style={styles.modalText}>Proceed to LOGIN?</Text>
+            <View style={styles.modalButtons}>
               <TouchableOpacity
-                onPress={() => setIsRegistering(!isRegistering)}
+                onPress={() => setShowModal(false)}
+                style={styles.modalCancel}
               >
-                <Text style={styles.registerToggleText}>
-                  {isRegistering
-                    ? "Already have an account? Login"
-                    : "Don't have an account? Register"}
-                </Text>
+                <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Text style={styles.forgotText}>Close</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowModal(false);
+                  goToScreen("lreg"); // navigate to lreg.tsx
+                }}
+                style={styles.modalConfirm}
+              >
+                <Text style={styles.modalButtonText}>OK</Text>
               </TouchableOpacity>
-            </ScrollView>
+            </View>
           </View>
         </View>
       </Modal>
@@ -355,7 +235,7 @@ const ShopfurScreen: React.FC<ShopfurScreenProps> = ({
 const BottomNav = ({
   onNavigate,
 }: {
-  onNavigate: (screen: Screen, params?: any) => void;
+  onNavigate: (screen: Screen) => void;
 }) => {
   const navItems: { icon: string; label: string; target: Screen }[] = [
     { icon: "🏠", label: "Home", target: "home" },
@@ -381,41 +261,6 @@ const BottomNav = ({
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    padding: 20,
-  },
-  modalContent: { backgroundColor: "#fff", padding: 20, borderRadius: 16 },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  modalButton: {
-    backgroundColor: "#BFA890",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  modalButtonText: { color: "#fff", fontWeight: "bold" },
-  registerToggleText: {
-    color: "#6B4F3B",
-    marginTop: 10,
-    textAlign: "center",
-    textDecorationLine: "underline",
-  },
-  forgotText: { color: "#6B4F3B", marginTop: 10, textAlign: "center" },
-
   bottomNav: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -541,15 +386,43 @@ const styles = StyleSheet.create({
     color: "#3E2E22",
     fontWeight: "600",
   },
-  passHintBox: {
-    marginBottom: 10,
-    marginTop: -5,
-    paddingLeft: 5,
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  passHintText: {
-    fontSize: 12,
-    color: "red",
-    marginBottom: 2,
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 16,
+    fontWeight: "600",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalCancel: {
+    backgroundColor: "#ccc",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  modalConfirm: {
+    backgroundColor: "#6B4F3B",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
 
