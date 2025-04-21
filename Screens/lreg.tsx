@@ -21,21 +21,32 @@ const LRegScreen: React.FC<Props> = ({ goToScreen }) => {
     password: "",
     confirm: "",
   });
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmTouched, setConfirmTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
 
-  const validatePassword = (password: string) => {
-    const requirements = {
-      length: password.length >= 8,
-      number: /\d/.test(password),
-      special: /[!@#$%^&*]/.test(password),
-      upperLower: /(?=.*[a-z])(?=.*[A-Z])/.test(password),
-    };
-    return requirements;
-  };
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validatePassword = (password: string) => ({
+    length: password.length >= 8,
+    number: /\d/.test(password),
+    special: /[!@#$%^&*]/.test(password),
+    upperLower: /(?=.*[a-z])(?=.*[A-Z])/.test(password),
+  });
 
   const handleSubmit = () => {
+    const reqs = validatePassword(form.password);
+    const allValid = Object.values(reqs).every(Boolean);
+    const emailValid = validateEmail(form.email);
+
+    if (!emailValid) {
+      Alert.alert("Error", "Invalid email format.");
+      return;
+    }
+
     if (isRegister) {
-      const reqs = validatePassword(form.password);
-      if (!reqs.length || !reqs.number || !reqs.special || !reqs.upperLower) {
+      if (!allValid) {
         Alert.alert("Error", "Password does not meet requirements.");
         return;
       }
@@ -54,9 +65,29 @@ const LRegScreen: React.FC<Props> = ({ goToScreen }) => {
     goToScreen("home");
   };
 
+  const passwordReqs = validatePassword(form.password);
+  const showPasswordHints =
+    isRegister &&
+    passwordTouched &&
+    Object.values(passwordReqs).some((v) => !v);
+
+  const passwordsMatch =
+    isRegister && form.password === form.confirm && form.confirm.length > 0;
+
+  const confirmMismatch =
+    isRegister &&
+    confirmTouched &&
+    form.confirm.length > 0 &&
+    form.password !== form.confirm;
+
+  const emailInvalid =
+    isRegister &&
+    emailTouched &&
+    form.email.length > 0 &&
+    !validateEmail(form.email);
+
   return (
     <View style={styles.container}>
-      {/* Back Button */}
       <TouchableOpacity
         onPress={() => goToScreen("home")}
         style={styles.backButton}
@@ -74,39 +105,80 @@ const LRegScreen: React.FC<Props> = ({ goToScreen }) => {
           onChangeText={(text) => setForm({ ...form, username: text })}
         />
       )}
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={form.email}
-        onChangeText={(text) => setForm({ ...form, email: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={form.password}
-        onChangeText={(text) => setForm({ ...form, password: text })}
-      />
+
+      {/* Email with validation box */}
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={form.email}
+          onFocus={() => setEmailTouched(true)}
+          onChangeText={(text) => {
+            setForm({ ...form, email: text });
+            if (!emailTouched) setEmailTouched(true);
+          }}
+        />
+        {emailInvalid && (
+          <View style={styles.reqsInside}>
+            <Text style={styles.requirement}>
+              • Must be a valid email format
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* Password field */}
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={form.password}
+          onFocus={() => setPasswordTouched(true)}
+          onChangeText={(text) => {
+            setForm({ ...form, password: text });
+            if (!passwordTouched) setPasswordTouched(true);
+          }}
+        />
+        {showPasswordHints && (
+          <View style={styles.reqsInside}>
+            {Object.entries(passwordReqs).map(
+              ([key, met]) =>
+                !met && (
+                  <Text key={key} style={styles.requirement}>
+                    • Must contain{" "}
+                    {key === "upperLower"
+                      ? "uppercase & lowercase"
+                      : key === "length"
+                      ? "8+ characters"
+                      : key}
+                  </Text>
+                )
+            )}
+          </View>
+        )}
+      </View>
+
       {isRegister && (
-        <>
+        <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
             placeholder="Confirm Password"
             secureTextEntry
             value={form.confirm}
-            onChangeText={(text) => setForm({ ...form, confirm: text })}
+            onFocus={() => setConfirmTouched(true)}
+            onChangeText={(text) => {
+              setForm({ ...form, confirm: text });
+              if (!confirmTouched) setConfirmTouched(true);
+            }}
           />
-          <View style={styles.reqs}>
-            {Object.entries(validatePassword(form.password)).map(([key, met]) =>
-              !met ? (
-                <Text key={key} style={styles.requirement}>
-                  - Must contain{" "}
-                  {key === "upperLower" ? "uppercase & lowercase" : key}
-                </Text>
-              ) : null
-            )}
-          </View>
-        </>
+          {confirmMismatch && (
+            <Text style={styles.confirmError}>❌ Passwords do not match</Text>
+          )}
+          {passwordsMatch && (
+            <Text style={styles.confirmSuccess}>✅ Passwords match</Text>
+          )}
+        </View>
       )}
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
@@ -134,7 +206,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 80,
     justifyContent: "center",
-    backgroundColor: "#F5F5DC", // light beige like your theme
+    backgroundColor: "#F5F5DC",
   },
   title: {
     fontSize: 28,
@@ -152,6 +224,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#fff",
   },
+  passwordContainer: {
+    position: "relative",
+    marginBottom: 10,
+  },
+  reqsInside: {
+    position: "absolute",
+    top: "100%",
+    left: 10,
+    right: 10,
+    backgroundColor: "#fff8f0",
+    padding: 8,
+    borderRadius: 8,
+    borderColor: "#e0b4a1",
+    borderWidth: 1,
+    marginTop: 5,
+    zIndex: 1,
+  },
+  requirement: {
+    color: "red",
+    fontSize: 12,
+  },
+  confirmError: {
+    color: "red",
+    fontSize: 12,
+    marginTop: -5,
+    marginLeft: 10,
+  },
+  confirmSuccess: {
+    color: "green",
+    fontSize: 12,
+    marginTop: -5,
+    marginLeft: 10,
+  },
   button: {
     backgroundColor: "#5D4037",
     padding: 15,
@@ -168,14 +273,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#1E90FF",
     textDecorationLine: "underline",
-  },
-  requirement: {
-    color: "red",
-    fontSize: 12,
-  },
-  reqs: {
-    marginTop: 5,
-    paddingLeft: 5,
   },
   backButton: {
     position: "absolute",
