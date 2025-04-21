@@ -104,7 +104,7 @@ const ShopfurScreen: React.FC<ShopfurScreenProps> = ({
             source={require("../assets/cart_icon.png")}
             style={styles.logo}
           />
-          <Text style={styles.logoText}>SHOPFUR</Text>
+          <Text style={styles.logoText}></Text>
         </View>
         <Text style={styles.headerIcon}>⚙️</Text>
       </View>

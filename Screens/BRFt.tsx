@@ -19,15 +19,16 @@ const BRoomtScreen: React.FC<LivingRoomScreenProps> = ({
             source={require("../assets/cart_icon.png")}
             style={styles.logo}
           />
-          <Text style={styles.logoText}>SHOPFUR</Text>
+          <Text style={styles.logoText}></Text>
         </View>
         <Text style={styles.headerIcon}>⚙️</Text>
       </View>
 
       <View style={styles.content}>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>Back</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
+
         <Text style={styles.title}>Bed Room Furniture</Text>
 
         <View style={styles.buttonRow}>
@@ -35,14 +36,14 @@ const BRoomtScreen: React.FC<LivingRoomScreenProps> = ({
             style={styles.optionButton}
             onPress={() => goToScreen("Desks")}
           >
-            <Text style={styles.optionText}>Desks & Chairs</Text>
+            <Text style={styles.optionText}>🪑🗄️ Desks & Chairs</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.optionButton}
             onPress={() => goToScreen("Wardrobe")}
           >
-            <Text style={styles.optionText}>Wardrobe</Text>
+            <Text style={styles.optionText}>👗 Wardrobe</Text>
           </TouchableOpacity>
         </View>
 
@@ -51,7 +52,7 @@ const BRoomtScreen: React.FC<LivingRoomScreenProps> = ({
             style={styles.optionButton}
             onPress={() => goToScreen("Bed")}
           >
-            <Text style={styles.optionText}>Bed</Text>
+            <Text style={styles.optionText}>🛏️ Bed</Text>
           </TouchableOpacity>
         </View>
       </View>

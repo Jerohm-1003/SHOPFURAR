@@ -20,5 +20,6 @@ export type Screen =
   | "broomt"
   | "droomt"
   | "lreg"
+  | "profile"
   
 

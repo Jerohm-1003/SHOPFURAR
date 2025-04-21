@@ -92,7 +92,7 @@ const LRegScreen: React.FC<Props> = ({ goToScreen }) => {
         onPress={() => goToScreen("home")}
         style={styles.backButton}
       >
-        <Text style={styles.backButtonText}>← Back</Text>
+        <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
 
       <Text style={styles.title}>{isRegister ? "Register" : "Login"}</Text>
@@ -283,6 +283,5 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: "#1E90FF",
-    textDecorationLine: "underline",
   },
 });

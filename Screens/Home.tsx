@@ -55,7 +55,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             style={[styles.drawer, { transform: [{ translateX: slideAnim }] }]}
           >
             <TouchableOpacity style={styles.backButton} onPress={toggleMenu}>
-              <Text style={styles.backButtonText}>Back</Text>
+              <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -163,7 +163,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => goToScreen?.("home")}
+          onPress={() => goToScreen?.("profile")}
         >
           <Text style={styles.navIcon}>👤</Text>
           <Text style={styles.navLabel}>Profile</Text>

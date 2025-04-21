@@ -25,14 +25,14 @@ const FurnitureScreen: React.FC<FurnitureScreenProps> = ({
             source={require("../assets/cart_icon.png")}
             style={styles.logoImage}
           />
-          <Text style={styles.logoText}>SHOPFUR</Text>
+          <Text style={styles.logoText}></Text>
         </View>
         <Text style={styles.headerIcon}>⚙️</Text>
       </View>
 
       <View style={styles.content}>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>Back</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>Furniture</Text>

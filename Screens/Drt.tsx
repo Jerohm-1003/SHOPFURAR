@@ -19,15 +19,16 @@ const DRoomtScreen: React.FC<LivingRoomScreenProps> = ({
             source={require("../assets/cart_icon.png")}
             style={styles.logo}
           />
-          <Text style={styles.logoText}>SHOPFUR</Text>
+          <Text style={styles.logoText}></Text>
         </View>
         <Text style={styles.headerIcon}>⚙️</Text>
       </View>
 
       <View style={styles.content}>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>Back</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
+
         <Text style={styles.title}>Dining Room Furniture</Text>
 
         <View style={styles.buttonRow}>
@@ -35,14 +36,14 @@ const DRoomtScreen: React.FC<LivingRoomScreenProps> = ({
             style={styles.optionButton}
             onPress={() => goToScreen("DiningChair")}
           >
-            <Text style={styles.optionText}>Dining Chair</Text>
+            <Text style={styles.optionText}>🪑 Dining Chair</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.optionButton}
             onPress={() => goToScreen("Cabinet")}
           >
-            <Text style={styles.optionText}>Cabinet</Text>
+            <Text style={styles.optionText}>🗄️ Cabinet</Text>
           </TouchableOpacity>
         </View>
 
@@ -51,7 +52,7 @@ const DRoomtScreen: React.FC<LivingRoomScreenProps> = ({
             style={styles.optionButton}
             onPress={() => goToScreen("DiningTable")}
           >
-            <Text style={styles.optionText}>Dining Table</Text>
+            <Text style={styles.optionText}>🍽️ Dining Table</Text>
           </TouchableOpacity>
         </View>
       </View>

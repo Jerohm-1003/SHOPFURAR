@@ -19,15 +19,16 @@ const LivingRoomScreen: React.FC<LivingRoomScreenProps> = ({
             source={require("../assets/cart_icon.png")}
             style={styles.logo}
           />
-          <Text style={styles.logoText}>SHOPFUR</Text>
+          <Text style={styles.logoText}></Text>
         </View>
         <Text style={styles.headerIcon}>⚙️</Text>
       </View>
 
       <View style={styles.content}>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>Back</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
+
         <Text style={styles.title}>Living Room Furniture</Text>
 
         <View style={styles.buttonRow}>
@@ -35,14 +36,14 @@ const LivingRoomScreen: React.FC<LivingRoomScreenProps> = ({
             style={styles.optionButton}
             onPress={() => goToScreen("chair")}
           >
-            <Text style={styles.optionText}>Chair</Text>
+            <Text style={styles.optionText}>🪑 Chair</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.optionButton}
             onPress={() => goToScreen("sofa")}
           >
-            <Text style={styles.optionText}>Sofa</Text>
+            <Text style={styles.optionText}>🛋️ Sofa</Text>
           </TouchableOpacity>
         </View>
 
@@ -51,7 +52,7 @@ const LivingRoomScreen: React.FC<LivingRoomScreenProps> = ({
             style={styles.optionButton}
             onPress={() => goToScreen("tvstand")}
           >
-            <Text style={styles.optionText}>TV Stand</Text>
+            <Text style={styles.optionText}>📺 TV Stand</Text>
           </TouchableOpacity>
         </View>
       </View>

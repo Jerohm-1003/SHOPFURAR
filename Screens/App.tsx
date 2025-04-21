@@ -13,6 +13,8 @@ import ARScene from "./ARScene";
 import DRScreen from "./Dr";
 import BRScreen from "./BRf";
 import LRegScreen from "./lreg";
+import Profile from "./Profile";
+import NewlyUinfo from "./newlyUinfo";
 
 export type Screen =
   | "loading"
@@ -37,7 +39,8 @@ export type Screen =
   | "DiningChair"
   | "broomt"
   | "droomt"
-  | "lreg";
+  | "lreg"
+  | "intro";
 
 export interface CartItem {
   id: number;
@@ -50,6 +53,7 @@ const App = () => {
   const [screen, setScreen] = useState<Screen>("loading");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [arUri, setArUri] = useState<string>("");
+  const [showIntro, setShowIntro] = useState(true);
 
   const addToCart = (newItem: CartItem) => {
     setCartItems((prev) => {
@@ -89,7 +93,16 @@ const App = () => {
   };
 
   if (screen === "loading")
-    return <LoadingScreen onDone={() => setScreen("home")} />;
+    return (
+      <LoadingScreen
+        onDone={() => {
+          setScreen("intro");
+        }}
+      />
+    );
+
+  if (screen === "intro")
+    return <NewlyUinfo onFinish={() => setScreen("home")} />;
 
   if (screen === "home")
     return (
@@ -175,7 +188,11 @@ const App = () => {
       />
     );
 
-  if (screen === "profile") return <HomeScreen goToScreen={goToScreen} />;
+  if (screen === "profile")
+    return (
+      <Profile goToScreen={goToScreen} goBack={() => setScreen("furniture")} />
+    );
+
   if (screen === "inbox") return <HomeScreen goToScreen={goToScreen} />;
 
   return null;
