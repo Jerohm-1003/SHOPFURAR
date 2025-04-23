@@ -7,7 +7,7 @@ import {
   ViroBox,
   ViroMaterials,
 } from "@reactvision/react-viro";
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 
 interface ARSceneProps {
@@ -27,7 +27,6 @@ interface HelloWorldSceneARState {
   lastRotationY: number;
 }
 
-// ✅ REGISTER MATERIALS AT TOP (ONCE)
 ViroMaterials.createMaterials({
   greenBox: {
     diffuseColor: "#00ff00",
@@ -44,7 +43,7 @@ class HelloWorldSceneAR extends Component<
   constructor(props: HelloWorldSceneARProps) {
     super(props);
     this.state = {
-      position: [0, -1, -2], // Center in front of user
+      position: [0, -1, -2],
       scale: [0.3, 0.3, 0.3],
       rotation: [0, 0, 0],
       lastPinchScale: 0.3,
@@ -60,11 +59,9 @@ class HelloWorldSceneAR extends Component<
       return;
     }
 
-    const newScale = Math.min(
-      Math.max(this.state.lastPinchScale * scaleFactor, 0.2),
-      3.0
-    );
-    this.setState({ scale: [newScale, newScale, newScale] });
+    const newScale = this.state.lastPinchScale * scaleFactor;
+    const clamped = Math.min(Math.max(newScale, 0.2), 3.0);
+    this.setState({ scale: [clamped, clamped, clamped] });
   };
 
   onRotate = (rotateState: number, rotationFactor: number) => {
@@ -75,8 +72,8 @@ class HelloWorldSceneAR extends Component<
       return;
     }
 
-    const newRotationY = this.state.lastRotationY + rotationFactor;
-    this.setState({ rotation: [0, newRotationY, 0] });
+    const newY = this.state.lastRotationY + rotationFactor;
+    this.setState({ rotation: [0, newY, 0] });
   };
 
   onDrag = (newPosition: [number, number, number]) => {
@@ -99,27 +96,29 @@ class HelloWorldSceneAR extends Component<
   };
 
   render() {
+    const { uri } = this.props;
+    const { position, scale, rotation } = this.state;
+
     return (
       <ViroARScene>
         <ViroAmbientLight color="#FFFFFF" intensity={500} />
-
         <ViroARPlaneSelector />
 
-        {/* Bounding Box Indicator */}
+        {/* Boundary indicator under model */}
         <ViroBox
-          position={this.state.position}
+          position={position}
           scale={[0.3, 0.01, 0.3]}
           materials={this.getBoundaryMaterial()}
           opacity={0.6}
         />
 
-        {/* Always visible model */}
+        {/* Main 3D furniture */}
         <Viro3DObject
-          source={{ uri: this.props.uri }}
+          source={{ uri }}
           type="GLB"
-          position={this.state.position}
-          scale={this.state.scale}
-          rotation={this.state.rotation}
+          position={position}
+          scale={scale}
+          rotation={rotation}
           onPinch={this.onPinch}
           onRotate={this.onRotate}
           onDrag={this.onDrag}
