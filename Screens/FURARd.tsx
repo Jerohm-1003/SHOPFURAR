@@ -29,7 +29,8 @@ const mockItems: Record<string, Item[]> = {
       id: 1,
       name: "Modern Chair",
       price: 1500,
-      glbUri: "https://modelviewer.dev/shared-assets/models/Chair.glb",
+      glbUri:
+        "https://github.com/Jerohm-1003/glb-models/raw/refs/heads/main/sofa%20(1).glb",
     },
     {
       id: 2,

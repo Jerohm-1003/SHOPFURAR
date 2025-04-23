@@ -23,7 +23,7 @@ interface HelloWorldSceneARState {
   position: [number, number, number];
   scale: [number, number, number];
   rotation: [number, number, number];
-  lastPinchScale: number;
+  lastScale: number;
   lastRotationY: number;
 }
 
@@ -46,48 +46,42 @@ class HelloWorldSceneAR extends Component<
       position: [0, -1, -2],
       scale: [0.3, 0.3, 0.3],
       rotation: [0, 0, 0],
-      lastPinchScale: 0.3,
+      lastScale: 0.3,
       lastRotationY: 0,
     };
   }
 
   onPinch = (pinchState: number, scaleFactor: number) => {
+    let { lastScale } = this.state;
+    let newScale = lastScale * scaleFactor;
+
+    // Clamp the scale to keep it reasonable
+    newScale = Math.max(0.2, Math.min(3.0, newScale));
+
     if (pinchState === 3) {
-      this.setState((prev) => ({
-        lastPinchScale: prev.scale[0],
-      }));
-      return;
+      // Pinch gesture ended, update lastScale
+      this.setState({ lastScale: newScale });
     }
 
-    const newScale = this.state.lastPinchScale * scaleFactor;
-    const clamped = Math.min(Math.max(newScale, 0.2), 3.0);
-    this.setState({ scale: [clamped, clamped, clamped] });
+    this.setState({
+      scale: [newScale, newScale, newScale],
+    });
   };
 
   onRotate = (rotateState: number, rotationFactor: number) => {
+    const newY = this.state.lastRotationY + rotationFactor;
+
     if (rotateState === 3) {
-      this.setState((prev) => ({
-        lastRotationY: prev.rotation[1],
-      }));
-      return;
+      this.setState({ lastRotationY: newY });
     }
 
-    const newY = this.state.lastRotationY + rotationFactor;
-    this.setState({ rotation: [0, newY, 0] });
-  };
-
-  onDrag = (newPosition: [number, number, number]) => {
-    this.setState({ position: newPosition });
-  };
-
-  onDoubleTap = () => {
     this.setState({
-      position: [0, -1, -2],
-      rotation: [0, 0, 0],
-      scale: [0.3, 0.3, 0.3],
-      lastRotationY: 0,
-      lastPinchScale: 0.3,
+      rotation: [0, newY, 0],
     });
+  };
+
+  onDrag = (newPos: [number, number, number]) => {
+    this.setState({ position: newPos });
   };
 
   getBoundaryMaterial = () => {
@@ -101,29 +95,27 @@ class HelloWorldSceneAR extends Component<
 
     return (
       <ViroARScene>
-        <ViroAmbientLight color="#FFFFFF" intensity={500} />
+        <ViroAmbientLight color="#FFFFFF" intensity={600} />
         <ViroARPlaneSelector />
 
-        {/* Boundary indicator under model */}
+        {/* Optional visual feedback plane */}
         <ViroBox
           position={position}
           scale={[0.3, 0.01, 0.3]}
           materials={this.getBoundaryMaterial()}
-          opacity={0.6}
+          opacity={0.5}
         />
 
-        {/* Main 3D furniture */}
         <Viro3DObject
           source={{ uri }}
           type="GLB"
           position={position}
           scale={scale}
           rotation={rotation}
+          dragType="FixedToWorld"
+          onDrag={this.onDrag}
           onPinch={this.onPinch}
           onRotate={this.onRotate}
-          onDrag={this.onDrag}
-          onClick={this.onDoubleTap}
-          dragType="FixedToWorld"
         />
       </ViroARScene>
     );
@@ -158,9 +150,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 40,
     left: 20,
-    backgroundColor: "#00000080",
+    backgroundColor: "#00000088",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 6,
   },
   backButtonText: {
     color: "#fff",
